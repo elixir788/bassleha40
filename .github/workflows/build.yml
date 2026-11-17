@@ -12,13 +12,9 @@ jobs:
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
-        run: cmake —build build —config Release —parallel 4
-      - name: Sign and zip
-        run: |
-          VST=$(find build -name «*.vst3» -type d | head -1)
-          echo «Found: $VST»
-          codesign —force —deep -s - «$VST»
-          ditto -c -k —keepParent «$VST» Bass-ot-Lehi40-mac-VST3.zip
+        run: make -C build -j4
+      - name: Zip
+        run: find build -name \*.vst3 -type d -exec zip -ry Bass-ot-Lehi40-mac-VST3.zip {} \;
       - uses: actions/upload-artifact@v4
         with:
           name: Bass-ot-Lehi40-Mac
