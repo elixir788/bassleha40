@@ -1,0 +1,25 @@
+name: Build VST3
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake —build build —config Release —parallel 4
+      - name: Sign and zip
+        run: |
+          VST=$(find build -name «*.vst3» -type d | head -1)
+          echo «Found: $VST»
+          codesign —force —deep -s - «$VST»
+          ditto -c -k —keepParent «$VST» Bass-ot-Lehi40-mac-VST3.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bass-ot-Lehi40-Mac
+          path: Bass-ot-Lehi40-mac-VST3.zip
